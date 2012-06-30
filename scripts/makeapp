@@ -1,0 +1,61 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+BUILD_RES=$BUILDDIR/Contents/Resources
+APP_RES="$scriptPath/../VisualSFM.app/Contents/Resources"
+
+echo "Preparing app dir"
+rm -fr VisualSFM.app
+cp -R $scriptPath/../template_app $scriptPath/../VisualSFM.app
+
+echo "Copying Cellar dir..."
+cp -R "$BUILD_RES/Cellar" "$APP_RES/"
+
+echo "Copying etc dir..."
+cp -R "$BUILD_RES/etc" "$APP_RES/"
+
+echo "Copying lib dir..."
+cp -R "$BUILD_RES/lib" "$APP_RES/"
+
+echo "Copying share dir..."
+cp -R "$BUILD_RES/share" "$APP_RES/"
+
+
+echo "Copying main binary..."
+cp vsfm/bin/VisualSFM $APP_RES/bin/
+
+echo "Relinking main binary"
+libs=$(otool -L "$APP_RES/bin/VisualSFM" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
+
+echo $libs
+for lib in $libs
+do
+	echo $lib
+done
+#install_name_tool -change /Users/wantez/src/homebrew/vsfm/Contents/Resources/lib/libpixman-1.0.24.4.dylib  /tmp/iromu/VisualSFM.app/Contents/Resources/lib/libpixman-1.0.24.4.dylib  ./scripts/../VisualSFM.app/Contents/Resources/bin/VisualSFM
+#dylibbundler -of -x "$APP_RES/bin/VisualSFM" -p "$APP_ROOT/Contents/Resources/lib"  -i /usr/X11/lib
+
+echo "Disconnecting BUILDDIR link"
+if [ -e "$APP_ROOT" ]; then 
+	rm ${APP_ROOT} 
+fi

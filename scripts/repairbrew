@@ -1,0 +1,41 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+REPLACE=Contents/Resources
+
+function repair_links () {
+	for link in $(find $1 -type l)
+	do
+		loc=$(dirname $link)
+		dir=$(readlink $link)
+		if [[ "$dir" =~ "$REPLACE" ]]; then
+			rm $link
+			KEYWORD=$(echo $REPLACE | sed -e 's/\//\\\//g')
+			echo "Repairing $link->${dir/*$KEYWORD/..}"
+			$(ln -s ${dir/*$KEYWORD/..} ${link})
+		fi
+	done
+}
+
+repair_links $HOMEBREW/bin
+repair_links $HOMEBREW/lib
+repair_links $HOMEBREW/include

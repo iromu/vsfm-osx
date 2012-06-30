@@ -1,0 +1,47 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+function make_sfm () {
+	VSFM_SRC=http://abstract.cs.washington.edu/~ccwu/vsfm/vsfm.cgi?mac64
+	VSFM_ZIP=VisualSFM_osx_64bit.zip
+
+	if [ ! -e "${VSFM_ZIP}" ]; then
+		echo "Downloading vsfm"
+		curl -L $VSFM_SRC > VisualSFM_osx_64bit.zip
+		unzip VisualSFM_osx_64bit.zip
+	fi
+	
+	echo "Patching vsfm makefile"
+	KEYWORD=$(echo /usr/local | sed -e 's/\//\\\//g')
+	REPLACE=$(echo $HOMEBREW | sed -e 's/\//\\\//g')
+	sed -e "s/${KEYWORD}/${REPLACE}/g" vsfm/makefile  > output.file;mv output.file vsfm/makefile
+	
+	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
+	
+	cd vsfm
+	make clean && make
+	cd - > /dev/null
+	
+}
+
+make_sfm

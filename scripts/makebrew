@@ -1,0 +1,81 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+
+# Create dirs and links
+if [ ! -e "${BUILDDIR}" ]; then
+	$(mkdir -p ${BUILDDIR})
+fi
+
+if [ ! -e "${ROOT}" ]; then
+	$(mkdir -p ${ROOT})
+fi
+
+# Homebrew doesn't handle symlinks very good
+#$(mkdir -p ${HOMEBREW})
+if [ ! -e "${APP_ROOT}" ]; then
+	$(ln -s ${BUILDDIR} ${APP_ROOT})
+fi
+
+
+function rollback() {
+	echo "Rollback"
+	macports_activate
+	exit
+}
+
+function install_brew () {
+	if [ ! -e "$HOMEBREW/bin/brew" ]; then
+		echo "Installing Homebrew"
+		mkdir -p ${HOMEBREW} && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C ${HOMEBREW}
+	fi
+}
+
+trap rollback INT TERM EXIT
+
+macports_deactivate
+
+install_brew
+
+echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
+
+echo "$HOMEBREW/bin/pkg-config"
+
+if [ ! -h "$HOMEBREW/bin/pkg-config" ]; then
+	echo "Installing Homebrew dependencies"
+	$HOMEBREW/bin/brew install pkg-config
+	$HOMEBREW/bin/brew install gdk-pixbuf --use-llvm
+	$HOMEBREW/bin/brew install gtk+ cairo pango
+else
+	echo "Updating Homebrew dependencies"
+	$HOMEBREW/bin/brew update
+	$HOMEBREW/bin/brew update pkg-config
+	$HOMEBREW/bin/brew update gdk-pixbuf --use-llvm
+	$HOMEBREW/bin/brew update gtk+ cairo pango
+fi
+
+source $scriptPath/repairbrew
+
+macports_activate
+
+trap - INT TERM EXIT
