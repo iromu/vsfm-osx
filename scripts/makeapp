@@ -46,14 +46,12 @@ cp vsfm/bin/VisualSFM $APP_RES/bin/
 
 echo "Relinking main binary"
 libs=$(otool -L "$APP_RES/bin/VisualSFM" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
-
-echo $libs
+KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
+REPLACE=$HOMEBREW
 for lib in $libs
 do
-	echo $lib
+	install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/VisualSFM"
 done
-#install_name_tool -change /Users/wantez/src/homebrew/vsfm/Contents/Resources/lib/libpixman-1.0.24.4.dylib  /tmp/iromu/VisualSFM.app/Contents/Resources/lib/libpixman-1.0.24.4.dylib  ./scripts/../VisualSFM.app/Contents/Resources/bin/VisualSFM
-#dylibbundler -of -x "$APP_RES/bin/VisualSFM" -p "$APP_ROOT/Contents/Resources/lib"  -i /usr/X11/lib
 
 echo "Disconnecting BUILDDIR link"
 if [ -e "$APP_ROOT" ]; then 
