@@ -20,6 +20,7 @@ set -e
 scriptPath=${0%/*}
 
 source $scriptPath/makebrew
+source $scriptPath/repairbrew
 source $scriptPath/makevsfm
 source $scriptPath/makesiftgpu
 source $scriptPath/makepba

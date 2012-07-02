@@ -24,6 +24,46 @@ source $scriptPath/common
 BUILD_RES=$BUILDDIR/Contents/Resources
 APP_RES="$scriptPath/../VisualSFM.app/Contents/Resources"
 
+
+function repair_libs () {
+	echo "Relinking libs"
+	for library in $(find $1)
+	do
+		filename=$(basename $library)
+		extension=${filename##*.}
+		if [ "$extension" = "dylib" -o "$extension" = "so" ]; then
+			echo "Relinking $library"
+			chmod 777 $library
+			libs=$(otool -L "$library" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
+			KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
+			REPLACE=$HOMEBREW
+			for lib in $libs
+			do
+				echo "$lib -> ${lib/*$KEYWORD/$REPLACE}"
+				install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$library"
+			done
+			chmod 555 $library
+		fi
+	done
+}
+
+function repair_gdk {
+	gdkLoaders=$(grep \\.so $1 | sed s/\"//g)
+	for loader in $gdkLoaders
+	do
+		#echo $loader
+		filename=$(basename $loader)
+		#echo $filename
+		$(cp $loader VisualSFM.app/Contents/Resources/lib/)
+		dylibbundler -of -b -x "./VisualSFM.app/Contents/Resources/lib/$filename" -d ./VisualSFM.app/Contents/Resources/lib -p @executable_path  -i /usr/X11/lib
+		#$(echo $loader | sed -e 's/\//\\\//g')
+		KEYWORD=$(echo $loader | sed -e 's/\//\\\//g')
+		REPLACE=$(echo $filename | sed -e 's/\//\\\//g')
+		echo $KEYWORD
+		sed -e "s/${KEYWORD}/${REPLACE}/g" $1  > output.file;mv output.file $1
+	done
+}
+
 echo "Preparing app dir"
 rm -fr $scriptPath/../VisualSFM.app
 cp -R $scriptPath/../template_app $scriptPath/../VisualSFM.app
@@ -78,6 +118,9 @@ rm -fr "$APP_RES/Cellar/boost"
 rm -fr "$APP_RES/lib/libboost*"
 rm -fr "$APP_RES/Cellar/pkg-config"
 rm -fr "$APP_RES/lib/pkgconfig"
+
+repair_libs "$APP_RES/Cellar"
+repair_gdk "$APP_RES/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
 
 echo "Disconnecting BUILDDIR link"
 if [ -e "$APP_ROOT" ]; then 
