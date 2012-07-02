@@ -1,0 +1,71 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+function make_SiftGPU () {
+	SIFT_SRC=http://wwwx.cs.unc.edu/~ccwu/cgi-bin/siftgpu.cgi
+	SIFT_ZIP=SiftGPU.zip
+	ProgramGLSL_PATCH=http://www.cs.unc.edu/~ccwu/siftgpu/ProgramGLSL.cpp.patch
+
+	if [ ! -e "${SIFT_ZIP}" ]; then
+		echo "Downloading SiftGPU"
+		curl -L $SIFT_SRC > SiftGPU.zip
+		unzip $SIFT_ZIP
+	fi
+	
+	cd SiftGPU/src/SiftGPU/
+	if [ ! -e "$(basename $ProgramGLSL_PATCH)" ]; then
+		echo "Patching SiftGPU GLSL code"
+		curl -LO $ProgramGLSL_PATCH
+		patch < $(basename $ProgramGLSL_PATCH)
+	fi
+	cd - > /dev/null
+	
+	echo "Patching SiftGPU makefile"
+	
+	KEYWORD="siftgpu_enable_cuda = 1"
+	REPLACE="siftgpu_enable_cuda = 0"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
+	
+	KEYWORD="siftgpu_prefer_glut = 0"
+	REPLACE="siftgpu_prefer_glut = 1"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
+	
+	KEYWORD="-march=native"
+	REPLACE="-march=core2"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
+	
+	KEYWORD=$(echo -L/usr/lib64 | sed -e 's/\//\\\//g')
+	REPLACE=""
+	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
+	
+	KEYWORD=$(echo "CFLAGS +=  -L/opt/local/lib -L/usr/local/lib" | sed -e 's/\//\\\//g')
+	REPLACE=$(echo "CFLAGS +=  -L$HOMEBREW/lib " | sed -e 's/\//\\\//g')
+	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
+	
+	cd SiftGPU
+	make clean && make siftgpu
+	cd - > /dev/null
+
+}
+
+make_SiftGPU

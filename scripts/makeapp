@@ -25,7 +25,7 @@ BUILD_RES=$BUILDDIR/Contents/Resources
 APP_RES="$scriptPath/../VisualSFM.app/Contents/Resources"
 
 echo "Preparing app dir"
-rm -fr VisualSFM.app
+rm -fr $scriptPath/../VisualSFM.app
 cp -R $scriptPath/../template_app $scriptPath/../VisualSFM.app
 
 echo "Copying Cellar dir..."
@@ -40,7 +40,6 @@ cp -R "$BUILD_RES/lib" "$APP_RES/"
 echo "Copying share dir..."
 cp -R "$BUILD_RES/share" "$APP_RES/"
 
-
 echo "Copying main binary..."
 cp vsfm/bin/VisualSFM $APP_RES/bin/
 
@@ -52,6 +51,33 @@ for lib in $libs
 do
 	install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/VisualSFM"
 done
+
+echo "Copying SiftGPU library..."
+cp SiftGPU/bin/libsiftgpu.so $APP_RES/bin/
+
+echo "Copying PBA library..."
+cp pba/bin/libpba_no_gpu.so $APP_RES/bin/libpba.so
+
+echo "Copying CMVS/PMVS2/genOption binaries..."
+cp cmvs/program/main/cmvs $APP_RES/bin/
+cp cmvs/program/main/pmvs2 $APP_RES/bin/
+cp cmvs/program/main/genOption $APP_RES/bin/
+
+echo "Relinking CMVS/PMVS2/genOption binaries"
+libs=$(otool -L "$APP_RES/bin/pmvs2" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
+KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
+REPLACE=$HOMEBREW
+for lib in $libs
+do
+	install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/pmvs2"
+done
+
+
+echo "Cleaning unused files"
+rm -fr "$APP_RES/Cellar/boost"
+rm -fr "$APP_RES/lib/libboost*"
+rm -fr "$APP_RES/Cellar/pkg-config"
+rm -fr "$APP_RES/lib/pkgconfig"
 
 echo "Disconnecting BUILDDIR link"
 if [ -e "$APP_ROOT" ]; then 

@@ -31,8 +31,10 @@ if [ ! -e "${ROOT}" ]; then
 	$(mkdir -p ${ROOT})
 fi
 
-# Homebrew doesn't handle symlinks very good
-#$(mkdir -p ${HOMEBREW})
+if [ -e "$APP_ROOT" ]; then 
+	rm ${APP_ROOT} 
+fi
+
 if [ ! -e "${APP_ROOT}" ]; then
 	$(ln -s ${BUILDDIR} ${APP_ROOT})
 fi
@@ -53,7 +55,7 @@ function install_brew () {
 
 trap rollback INT TERM EXIT
 
-macports_deactivate
+#macports_deactivate
 
 install_brew
 
@@ -66,16 +68,24 @@ if [ ! -h "$HOMEBREW/bin/pkg-config" ]; then
 	$HOMEBREW/bin/brew install pkg-config
 	$HOMEBREW/bin/brew install gdk-pixbuf --use-llvm
 	$HOMEBREW/bin/brew install gtk+ cairo pango
+	$HOMEBREW/bin/brew install glew
+	$HOMEBREW/bin/brew install devil
+	$HOMEBREW/bin/brew install gsl
+	$HOMEBREW/bin/brew install boost
 else
 	echo "Updating Homebrew dependencies"
 	$HOMEBREW/bin/brew update
 	$HOMEBREW/bin/brew update pkg-config
 	$HOMEBREW/bin/brew update gdk-pixbuf --use-llvm
 	$HOMEBREW/bin/brew update gtk+ cairo pango
+	$HOMEBREW/bin/brew update glew
+	$HOMEBREW/bin/brew update devil
+	$HOMEBREW/bin/brew update gsl
+	$HOMEBREW/bin/brew update boost
 fi
 
 source $scriptPath/repairbrew
 
-macports_activate
+#macports_activate
 
 trap - INT TERM EXIT

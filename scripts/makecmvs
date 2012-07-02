@@ -1,0 +1,74 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+function make_cmvs () {
+	CMVS_SRC=http://grail.cs.washington.edu/software/cmvs/cmvs-fix2.tar.gz
+	CMVS_GZIP=cmvs-fix2.tar.gz
+
+	if [ ! -e "${CMVS_GZIP}" ]; then
+		echo "Downloading Clustering Views for Multi-view Stereo (CMVS)"
+		curl -L $CMVS_SRC > $CMVS_GZIP
+		tar zxvf $CMVS_GZIP
+	fi
+	
+	if [ ! -e "Graclus" ]; then
+		echo "Fetching Graclus 1.2"
+		echo "Copyright(c) 2008 Brian Kulis, Yuqiang Guan (version 1.2)"
+		git clone git://github.com/iromu/Graclus.git
+	fi
+
+	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
+
+	echo "Patching CMVS makefile"
+
+	KEYWORD=$(echo "Your INCLUDE path (e.g., -I/usr/include)" | sed -e 's/\//\\\//g')
+	REPLACE=""
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	KEYWORD=$(echo "Your metis directory (contains header files under graclus1.2/metisLib/)" | sed -e 's/\//\\\//g')
+	REPLACE=""
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	KEYWORD=$(echo "Your LDLIBRARY path (e.g., -L/usr/lib)" | sed -e 's/\//\\\//g')
+	REPLACE=""
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	KEYWORD="YOUR_INCLUDE_PATH ="
+	REPLACE=$(echo "YOUR_INCLUDE_PATH=-I$HOMEBREW/include" | sed -e 's/\//\\\//g')
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	KEYWORD="YOUR_INCLUDE_METIS_PATH ="
+	REPLACE=$(echo "YOUR_INCLUDE_METIS_PATH=-I../../../Graclus/metisLib" | sed -e 's/\//\\\//g')
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	KEYWORD="YOUR_LDLIB_PATH ="
+	REPLACE=$(echo "YOUR_LDLIB_PATH=-L$HOMEBREW/lib -L/usr/x11/lib" | sed -e 's/\//\\\//g')
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	cd cmvs/program/main
+	make clean && make 
+	cd - > /dev/null
+	
+}
+
+make_cmvs

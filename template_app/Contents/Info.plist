@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>launcher</string>
+	<key>CFBundleGetInfoString</key>
+	<string>0.5.18, © 2006-2012 Changchang Wu and University of Washington</string>
+	<key>CFBundleIconFile</key>
+	<string>filter.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>ccwu.VisualSFM</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>VisualSFM</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.5.18</string>
+	<key>CFBundleSignature</key>
+	<string>VisualSFM</string>
+	<key>CFBundleVersion</key>
+	<string>0.5.18</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2006-2012 Changchang Wu and University of Washington</string>
+</dict>
+</plist>

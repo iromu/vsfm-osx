@@ -17,11 +17,18 @@
 
 set -e
 
-scriptPath=${0%/*}
+DIR=`dirname "$0"`
+cd "$DIR/../.."
+APPDIR=`pwd`
+cd - > /dev/null
 
-source $scriptPath/makebrew
-source $scriptPath/makevsfm
-source $scriptPath/makesiftgpu
-source $scriptPath/makepba
-source $scriptPath/makecmvs
-source $scriptPath/makeapp
+LNDIR=/tmp/iromu/VisualSFM.app
+
+if [ ! -e "$LNDIR/Contents/Resources/bin/VisualSFM" ]; then
+	rm -f "$LNDIR"
+	mkdir -p /tmp/iromu
+	chmod a+w /tmp/iromu
+	ln -s "$APPDIR" "$LNDIR"
+fi
+
+exec "$LNDIR/Contents/Resources/bin/VisualSFM"

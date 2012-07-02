@@ -1,0 +1,52 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+function make_pba () {
+	PBA_SRC=http://abstract.cs.washington.edu/~ccwu/pba.cgi
+	PBA_ZIP=pba.zip
+
+	if [ ! -e "${PBA_ZIP}" ]; then
+		echo "Downloading Multicore Bundle Adjustment"
+		curl -L $PBA_SRC > $PBA_ZIP
+		unzip $PBA_ZIP
+	fi
+	
+	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
+
+	echo "Patching PBA makefile"
+
+	KEYWORD="-march=native"
+	REPLACE="-march=core2"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" pba/makefile_no_gpu  > output.file;mv output.file pba/makefile_no_gpu
+	
+	KEYWORD=$(echo -L/usr/lib64 | sed -e 's/\//\\\//g')
+	REPLACE=""
+	sed -e "s/${KEYWORD}/${REPLACE}/g" pba/makefile_no_gpu  > output.file;mv output.file pba/makefile_no_gpu
+	
+	cd pba
+	make -f makefile_no_gpu clean && make -f makefile_no_gpu
+	cd - > /dev/null
+	
+}
+
+make_pba
