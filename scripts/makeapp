@@ -32,15 +32,19 @@ function repair_libs () {
 		filename=$(basename $library)
 		extension=${filename##*.}
 		if [ "$extension" = "dylib" -o "$extension" = "so" ]; then
-			echo "Relinking $library"
 			chmod 777 $library
 			libs=$(otool -L "$library" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
 			KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
 			REPLACE=$HOMEBREW
 			for lib in $libs
 			do
-				echo "$lib -> ${lib/*$KEYWORD/$REPLACE}"
-				install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$library"
+				DESTINATION=${lib/*$KEYWORD/$REPLACE}
+				if [ ! "$DESTINATION" = "$lib" ];then
+					#echo "$lib -> $DESTINATION @ $library"
+					chmod 777 $library
+					chmod 777 $lib
+					install_name_tool -change "$lib" "$DESTINATION" "$library"
+				fi
 			done
 			chmod 555 $library
 		fi
@@ -83,14 +87,16 @@ cp -R "$BUILD_RES/share" "$APP_RES/"
 echo "Copying main binary..."
 cp vsfm/bin/VisualSFM $APP_RES/bin/
 
-echo "Relinking main binary"
-libs=$(otool -L "$APP_RES/bin/VisualSFM" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
-KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
-REPLACE=$HOMEBREW
-for lib in $libs
-do
-	install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/VisualSFM"
-done
+if [ "${RELINK}" = true ]; then
+	echo "Relinking main binary"
+	libs=$(otool -L "$APP_RES/bin/VisualSFM" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
+	KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
+	REPLACE=$HOMEBREW
+	for lib in $libs
+	do
+		install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/VisualSFM"
+	done
+fi
 
 echo "Copying SiftGPU library..."
 cp SiftGPU/bin/libsiftgpu.so $APP_RES/bin/
@@ -103,15 +109,16 @@ cp cmvs/program/main/cmvs $APP_RES/bin/
 cp cmvs/program/main/pmvs2 $APP_RES/bin/
 cp cmvs/program/main/genOption $APP_RES/bin/
 
-echo "Relinking CMVS/PMVS2/genOption binaries"
-libs=$(otool -L "$APP_RES/bin/pmvs2" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
-KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
-REPLACE=$HOMEBREW
-for lib in $libs
-do
-	install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/pmvs2"
-done
-
+if [ "${RELINK}" = true ]; then
+	echo "Relinking CMVS/PMVS2/genOption binaries"
+	libs=$(otool -L "$APP_RES/bin/pmvs2" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
+	KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
+	REPLACE=$HOMEBREW
+	for lib in $libs
+	do
+		install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/pmvs2"
+	done
+fi
 
 echo "Cleaning unused files"
 rm -fr "$APP_RES/Cellar/boost"
@@ -119,10 +126,20 @@ rm -fr "$APP_RES/lib/libboost*"
 rm -fr "$APP_RES/Cellar/pkg-config"
 rm -fr "$APP_RES/lib/pkgconfig"
 
-repair_libs "$APP_RES/Cellar"
-repair_gdk "$APP_RES/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+if [ "${RELINK}" = true ]; then
+	repair_libs "$APP_RES/lib"
+	repair_libs "$APP_RES/Cellar"
+	#repair_gdk "$APP_RES/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+fi
 
-echo "Disconnecting BUILDDIR link"
-if [ -e "$APP_ROOT" ]; then 
-	rm ${APP_ROOT} 
+if [ "${RELINK}" = true ]; then
+	echo "Disconnecting BUILDDIR link"
+	if [ -e "$APP_ROOT" ]; then 
+		rm ${APP_ROOT} 
+	fi
+else
+	echo "Disconnecting BUILDDIR"
+	if [ -e "$APP_ROOT" ]; then 
+		mv "${APP_ROOT}" "${APP_ROOT}_BUILDDIR"
+	fi
 fi

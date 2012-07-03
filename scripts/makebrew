@@ -32,11 +32,13 @@ if [ ! -e "${ROOT}" ]; then
 fi
 
 if [ -e "$APP_ROOT" ]; then 
-	rm ${APP_ROOT} 
+	rm -fr ${APP_ROOT} 
 fi
 
 if [ ! -e "${APP_ROOT}" ]; then
-	$(ln -s ${BUILDDIR} ${APP_ROOT})
+	if [ "${RELINK}" = true ]; then
+		$(ln -s ${BUILDDIR} ${APP_ROOT})
+	fi
 fi
 
 
@@ -55,13 +57,11 @@ function install_brew () {
 
 trap rollback INT TERM EXIT
 
-#macports_deactivate
+# macports_deactivate
 
 install_brew
 
 echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
-
-echo "$HOMEBREW/bin/pkg-config"
 
 if [ ! -h "$HOMEBREW/bin/pkg-config" ]; then
 	echo "Installing Homebrew dependencies"
@@ -86,6 +86,6 @@ fi
 
 source $scriptPath/repairbrew
 
-#macports_activate
+# macports_activate
 
 trap - INT TERM EXIT

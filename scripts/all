@@ -19,10 +19,17 @@ set -e
 
 scriptPath=${0%/*}
 
+source $scriptPath/common
+
 source $scriptPath/makebrew
-source $scriptPath/repairbrew
+
+if [ "${RELINK}" = true ]; then
+	source $scriptPath/repairbrew
+fi
+
 source $scriptPath/makevsfm
 source $scriptPath/makesiftgpu
 source $scriptPath/makepba
 source $scriptPath/makecmvs
+
 source $scriptPath/makeapp
