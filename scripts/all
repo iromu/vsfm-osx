@@ -23,10 +23,6 @@ source $scriptPath/common
 
 source $scriptPath/makebrew
 
-if [ "${RELINK}" = true ]; then
-	source $scriptPath/repairbrew
-fi
-
 source $scriptPath/makevsfm
 source $scriptPath/makesiftgpu
 source $scriptPath/makepba

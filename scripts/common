@@ -17,21 +17,10 @@
 
 set -e
 
-ROOT=/private/tmp/iromu
-APP_ROOT=${ROOT}/VisualSFM.app
-HOMEBREW=${APP_ROOT}/Contents/Resources
-
-# Volatile dir
-BUILDDIR=$APP_ROOT
-
-# Cache dir, problems with homebrew
-# BUILDDIR=~/src/homebrew/vsfm
-
-if [ ! "$BUILDDIR" = "$APP_ROOT" ]; then
-	RELINK=true
-else
-	RELINK=false
-fi
+ROOT="/private/tmp/iromu"
+APP_ROOT="${ROOT}/VisualSFM.app"
+APP_RES="${APP_ROOT}/Contents/Resources"
+ATTIC="/Users/Shared/src/vsfm${ROOT}/"
 
 function macports_deactivate() {
 	if [ -e /opt/local ]; then
@@ -46,3 +35,6 @@ function macports_activate() {
 		sudo mv  ~/macports /opt/local
 	fi
 }
+
+echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
+

@@ -36,6 +36,6 @@ function repair_links () {
 	done
 }
 
-repair_links $HOMEBREW/bin
-repair_links $HOMEBREW/lib
-repair_links $HOMEBREW/include
+repair_links $APP_RES/bin
+repair_links $APP_RES/lib
+repair_links $APP_RES/include

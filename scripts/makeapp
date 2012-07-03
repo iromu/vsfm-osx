@@ -19,127 +19,52 @@ set -e
 
 scriptPath=${0%/*}
 
-source $scriptPath/common
+source "$scriptPath/common"
 
-BUILD_RES=$BUILDDIR/Contents/Resources
-APP_RES="$scriptPath/../VisualSFM.app/Contents/Resources"
+BUILD_RES=$APP_RES
+FINAL_APP=VisualSFM.app
+FINAL_APP_RES="$FINAL_APP/Contents/Resources"
 
-
-function repair_libs () {
-	echo "Relinking libs"
-	for library in $(find $1)
-	do
-		filename=$(basename $library)
-		extension=${filename##*.}
-		if [ "$extension" = "dylib" -o "$extension" = "so" ]; then
-			chmod 777 $library
-			libs=$(otool -L "$library" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
-			KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
-			REPLACE=$HOMEBREW
-			for lib in $libs
-			do
-				DESTINATION=${lib/*$KEYWORD/$REPLACE}
-				if [ ! "$DESTINATION" = "$lib" ];then
-					#echo "$lib -> $DESTINATION @ $library"
-					chmod 777 $library
-					chmod 777 $lib
-					install_name_tool -change "$lib" "$DESTINATION" "$library"
-				fi
-			done
-			chmod 555 $library
-		fi
-	done
-}
-
-function repair_gdk {
-	gdkLoaders=$(grep \\.so $1 | sed s/\"//g)
-	for loader in $gdkLoaders
-	do
-		#echo $loader
-		filename=$(basename $loader)
-		#echo $filename
-		$(cp $loader VisualSFM.app/Contents/Resources/lib/)
-		dylibbundler -of -b -x "./VisualSFM.app/Contents/Resources/lib/$filename" -d ./VisualSFM.app/Contents/Resources/lib -p @executable_path  -i /usr/X11/lib
-		#$(echo $loader | sed -e 's/\//\\\//g')
-		KEYWORD=$(echo $loader | sed -e 's/\//\\\//g')
-		REPLACE=$(echo $filename | sed -e 's/\//\\\//g')
-		echo $KEYWORD
-		sed -e "s/${KEYWORD}/${REPLACE}/g" $1  > output.file;mv output.file $1
-	done
-}
 
 echo "Preparing app dir"
-rm -fr $scriptPath/../VisualSFM.app
-cp -R $scriptPath/../template_app $scriptPath/../VisualSFM.app
+rm -fr "$FINAL_APP"
+cp -R "$scriptPath/../template_app" "$FINAL_APP"
 
 echo "Copying Cellar dir..."
-cp -R "$BUILD_RES/Cellar" "$APP_RES/"
+cp -R "$BUILD_RES/Cellar" "$FINAL_APP_RES/"
 
 echo "Copying etc dir..."
-cp -R "$BUILD_RES/etc" "$APP_RES/"
+cp -R "$BUILD_RES/etc" "$FINAL_APP_RES/"
 
 echo "Copying lib dir..."
-cp -R "$BUILD_RES/lib" "$APP_RES/"
+cp -R "$BUILD_RES/lib" "$FINAL_APP_RES/"
 
 echo "Copying share dir..."
-cp -R "$BUILD_RES/share" "$APP_RES/"
+cp -R "$BUILD_RES/share" "$FINAL_APP_RES/"
 
 echo "Copying main binary..."
-cp vsfm/bin/VisualSFM $APP_RES/bin/
+cp "vsfm/bin/VisualSFM" "$FINAL_APP_RES/bin/"
 
-if [ "${RELINK}" = true ]; then
-	echo "Relinking main binary"
-	libs=$(otool -L "$APP_RES/bin/VisualSFM" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
-	KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
-	REPLACE=$HOMEBREW
-	for lib in $libs
-	do
-		install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/VisualSFM"
-	done
-fi
 
 echo "Copying SiftGPU library..."
-cp SiftGPU/bin/libsiftgpu.so $APP_RES/bin/
+cp "SiftGPU/bin/libsiftgpu.so" "$FINAL_APP_RES/bin/"
 
 echo "Copying PBA library..."
-cp pba/bin/libpba_no_gpu.so $APP_RES/bin/libpba.so
+cp "pba/bin/libpba_no_gpu.so" "$FINAL_APP_RES/bin/libpba.so"
 
 echo "Copying CMVS/PMVS2/genOption binaries..."
-cp cmvs/program/main/cmvs $APP_RES/bin/
-cp cmvs/program/main/pmvs2 $APP_RES/bin/
-cp cmvs/program/main/genOption $APP_RES/bin/
-
-if [ "${RELINK}" = true ]; then
-	echo "Relinking CMVS/PMVS2/genOption binaries"
-	libs=$(otool -L "$APP_RES/bin/pmvs2" 2>/dev/null | fgrep compatibility | cut -d\( -f1  | grep Contents/Resources  | sort | uniq)
-	KEYWORD=$(echo Contents/Resources | sed -e 's/\//\\\//g')
-	REPLACE=$HOMEBREW
-	for lib in $libs
-	do
-		install_name_tool -change $lib ${lib/*$KEYWORD/$REPLACE} "$APP_RES/bin/pmvs2"
-	done
-fi
+cp "cmvs/program/main/cmvs" "$FINAL_APP_RES/bin/"
+cp "cmvs/program/main/pmvs2" "$FINAL_APP_RES/bin/"
+cp "cmvs/program/main/genOption" "$FINAL_APP_RES/bin/"
 
 echo "Cleaning unused files"
-rm -fr "$APP_RES/Cellar/boost"
-rm -fr "$APP_RES/lib/libboost*"
-rm -fr "$APP_RES/Cellar/pkg-config"
-rm -fr "$APP_RES/lib/pkgconfig"
+rm -fr "$FINAL_APP_RES/Cellar/boost"
+rm -fr "$FINAL_APP_RES/lib/libboost*"
+rm -fr "$FINAL_APP_RES/Cellar/pkg-config"
+rm -fr "$FINAL_APP_RES/lib/pkgconfig"
 
-if [ "${RELINK}" = true ]; then
-	repair_libs "$APP_RES/lib"
-	repair_libs "$APP_RES/Cellar"
-	#repair_gdk "$APP_RES/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
-fi
-
-if [ "${RELINK}" = true ]; then
-	echo "Disconnecting BUILDDIR link"
-	if [ -e "$APP_ROOT" ]; then 
-		rm ${APP_ROOT} 
-	fi
-else
-	echo "Disconnecting BUILDDIR"
-	if [ -e "$APP_ROOT" ]; then 
-		mv "${APP_ROOT}" "${APP_ROOT}_BUILDDIR"
-	fi
+echo "Disconnecting BUILDDIR"
+if [ -e "$APP_ROOT" ]; then 
+	mkdir -p "$ATTIC"
+	mv "${APP_ROOT}" "$ATTIC"
 fi

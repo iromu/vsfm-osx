@@ -29,8 +29,10 @@ function make_SiftGPU () {
 	if [ ! -e "${SIFT_ZIP}" ]; then
 		echo "Downloading SiftGPU"
 		curl -L $SIFT_SRC > SiftGPU.zip
-		unzip $SIFT_ZIP
 	fi
+	
+	rm -fr SiftGPU
+	unzip $SIFT_ZIP
 	
 	cd SiftGPU/src/SiftGPU/
 	if [ ! -e "$(basename $ProgramGLSL_PATCH)" ]; then
@@ -59,7 +61,7 @@ function make_SiftGPU () {
 	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
 	
 	KEYWORD=$(echo "CFLAGS +=  -L/opt/local/lib -L/usr/local/lib" | sed -e 's/\//\\\//g')
-	REPLACE=$(echo "CFLAGS +=  -L$HOMEBREW/lib " | sed -e 's/\//\\\//g')
+	REPLACE=$(echo "CFLAGS +=  -L$APP_RES/lib " | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" SiftGPU/makefile  > output.file;mv output.file SiftGPU/makefile
 	
 	cd SiftGPU

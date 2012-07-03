@@ -21,71 +21,80 @@ scriptPath=${0%/*}
 
 source $scriptPath/common
 
-
-# Create dirs and links
-if [ ! -e "${BUILDDIR}" ]; then
-	$(mkdir -p ${BUILDDIR})
-fi
-
 if [ ! -e "${ROOT}" ]; then
 	$(mkdir -p ${ROOT})
 fi
 
-if [ -e "$APP_ROOT" ]; then 
-	rm -fr ${APP_ROOT} 
-fi
-
-if [ ! -e "${APP_ROOT}" ]; then
-	if [ "${RELINK}" = true ]; then
-		$(ln -s ${BUILDDIR} ${APP_ROOT})
-	fi
+if [ -e "$ATTIC" ]; then 
+	echo "Restoring $ATTIC to $APP_ROOT"
+	mv "$ATTIC" "$APP_ROOT" 
+else
+	mkdir -p "$APP_ROOT"
 fi
 
 
 function rollback() {
 	echo "Rollback"
 	macports_activate
+	if [ -e "$APP_ROOT" ]; then 
+		echo "Moving $APP_ROOT to $ATTIC"
+		#mkdir -p "$ATTIC"
+		#mv "${APP_ROOT}" "${ATTIC}"
+	fi
 	exit
 }
 
 function install_brew () {
-	if [ ! -e "$HOMEBREW/bin/brew" ]; then
-		echo "Installing Homebrew"
-		mkdir -p ${HOMEBREW} && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C ${HOMEBREW}
+	if [ ! -e "$APP_RES/bin/brew" ]; then
+		echo "Installing Homebrew into $APP_RES"
+		mkdir -p ${APP_RES} && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C ${APP_RES}
+	fi
+	echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
+	$APP_RES/bin/brew update
+}
+
+function install_brew_libs () {
+	if [ ! -h "$APP_RES/bin/pkg-config" ]; then
+		echo "Installing Homebrew dependencies into $APP_RES"
+		#$APP_RES/bin/brew install pkg-config
+		$APP_RES/bin/brew install gdk-pixbuf --use-llvm
+		$APP_RES/bin/brew install cairo
+		$APP_RES/bin/brew link cairo
+		$APP_RES/bin/brew install pango
+
+		$APP_RES/bin/brew install fontconfig
+		$APP_RES/bin/brew install glew
+		$APP_RES/bin/brew install devil
+		$APP_RES/bin/brew install gsl
+		$APP_RES/bin/brew install boost
+
+		$APP_RES/bin/brew link pixman
+		$APP_RES/bin/brew link fontconfig
+	    $APP_RES/bin/brew install gtk+
+	else
+		echo "Updating Homebrew dependencies into $APP_RES"
+		$APP_RES/bin/brew update pkg-config
+		$APP_RES/bin/brew update gdk-pixbuf --use-llvm
+		$APP_RES/bin/brew update cairo pango gtk+
+		$APP_RES/bin/brew update glew
+		$APP_RES/bin/brew update devil
+		$APP_RES/bin/brew update gsl
+		$APP_RES/bin/brew update boost
 	fi
 }
 
 trap rollback INT TERM EXIT
 
-# macports_deactivate
+#macports_deactivate
 
 install_brew
 
-echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
-
-if [ ! -h "$HOMEBREW/bin/pkg-config" ]; then
-	echo "Installing Homebrew dependencies"
-	$HOMEBREW/bin/brew install pkg-config
-	$HOMEBREW/bin/brew install gdk-pixbuf --use-llvm
-	$HOMEBREW/bin/brew install gtk+ cairo pango
-	$HOMEBREW/bin/brew install glew
-	$HOMEBREW/bin/brew install devil
-	$HOMEBREW/bin/brew install gsl
-	$HOMEBREW/bin/brew install boost
-else
-	echo "Updating Homebrew dependencies"
-	$HOMEBREW/bin/brew update
-	$HOMEBREW/bin/brew update pkg-config
-	$HOMEBREW/bin/brew update gdk-pixbuf --use-llvm
-	$HOMEBREW/bin/brew update gtk+ cairo pango
-	$HOMEBREW/bin/brew update glew
-	$HOMEBREW/bin/brew update devil
-	$HOMEBREW/bin/brew update gsl
-	$HOMEBREW/bin/brew update boost
-fi
-
-source $scriptPath/repairbrew
+#install_brew_libs
+#$APP_RES/bin/brew doctor > brew-doctor.log
 
 # macports_activate
+
+echo $PATH
+echo $LDFLAGS
 
 trap - INT TERM EXIT

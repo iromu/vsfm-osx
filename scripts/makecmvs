@@ -37,7 +37,7 @@ function make_cmvs () {
 		git clone git://github.com/iromu/Graclus.git
 	fi
 
-	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
+	echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
 
 	echo "Patching CMVS makefile"
 
@@ -54,7 +54,7 @@ function make_cmvs () {
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	KEYWORD="YOUR_INCLUDE_PATH ="
-	REPLACE=$(echo "YOUR_INCLUDE_PATH=-I$HOMEBREW/include" | sed -e 's/\//\\\//g')
+	REPLACE=$(echo "YOUR_INCLUDE_PATH=-I$APP_RES/include" | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	KEYWORD="YOUR_INCLUDE_METIS_PATH ="
@@ -62,7 +62,7 @@ function make_cmvs () {
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	KEYWORD="YOUR_LDLIB_PATH ="
-	REPLACE=$(echo "YOUR_LDLIB_PATH=-L$HOMEBREW/lib -L/usr/x11/lib" | sed -e 's/\//\\\//g')
+	REPLACE=$(echo "YOUR_LDLIB_PATH=-L$APP_RES/lib -L/opt/X11/lib" | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	cd cmvs/program/main

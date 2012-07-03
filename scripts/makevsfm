@@ -28,12 +28,18 @@ function make_sfm () {
 	if [ ! -e "${VSFM_ZIP}" ]; then
 		echo "Downloading vsfm"
 		curl -L $VSFM_SRC > VisualSFM_osx_64bit.zip
-		unzip VisualSFM_osx_64bit.zip
 	fi
+	
+	rm -fr vsfm
+	unzip VisualSFM_osx_64bit.zip
 	
 	echo "Patching vsfm makefile"
 	KEYWORD=$(echo /usr/local | sed -e 's/\//\\\//g')
-	REPLACE=$(echo $HOMEBREW | sed -e 's/\//\\\//g')
+	REPLACE=$(echo $APP_RES | sed -e 's/\//\\\//g')
+	sed -e "s/${KEYWORD}/${REPLACE}/g" vsfm/makefile  > output.file;mv output.file vsfm/makefile
+	
+	KEYWORD=$(echo -L/usr/x11/lib | sed -e 's/\//\\\//g')
+	REPLACE=$(echo -L/opt/X11/lib | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" vsfm/makefile  > output.file;mv output.file vsfm/makefile
 	
 	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"

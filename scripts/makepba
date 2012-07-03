@@ -28,10 +28,12 @@ function make_pba () {
 	if [ ! -e "${PBA_ZIP}" ]; then
 		echo "Downloading Multicore Bundle Adjustment"
 		curl -L $PBA_SRC > $PBA_ZIP
-		unzip $PBA_ZIP
 	fi
 	
-	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
+	rm -fr pba
+	unzip $PBA_ZIP
+	
+	echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
 
 	echo "Patching PBA makefile"
 
