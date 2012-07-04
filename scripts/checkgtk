@@ -1,0 +1,27 @@
+#!/bin/bash
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (C) 2012 Ivan Rodriguez Murillo <wantez@gmail.com>. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License
+
+set -e
+
+scriptPath=${0%/*}
+
+source $scriptPath/common
+
+echo "LIBS"
+$APP_RES/bin/pkg-config --libs gtk+-2.0 gthread-2.0
+
+# Should contains -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/gtk+/2.24.10/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/atk/2.4.0/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/cairo/1.12.2/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/gdk-pixbuf/2.26.1/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/glib/2.32.3/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/pango/1.30.1/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/gettext/0.18.1.1/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/freetype2/2.4.4/lib -L/private/tmp/iromu/VisualSFM.app/Contents/Resources/Cellar/fontconfig/2.8.0/lib -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgio-2.0 -lpangoft2-1.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo -lpango-1.0 -lfreetype -lfontconfig -lgobject-2.0 -lgthread-2.0 -lglib-2.0 -lintl 

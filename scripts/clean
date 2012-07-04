@@ -17,18 +17,12 @@
 
 set -e
 
-DIR=`dirname "$0"`
-cd "$DIR/../.."
-APPDIR=`pwd`
-cd - > /dev/null
+scriptPath=${0%/*}
 
-LNDIR=/private/tmp/iromu/VisualSFM.app
+source $scriptPath/common
 
-if [ ! -e "$LNDIR/Contents/Resources/bin/VisualSFM" ]; then
-	rm -f "$LNDIR"
-	mkdir -p /private/tmp/iromu
-	chmod a+w /private/tmp/iromu
-	ln -s "$APPDIR" "$LNDIR"
-fi
-
-exec "$LNDIR/Contents/Resources/bin/VisualSFM"
+rm -fr $ROOT
+rm -fr vsfm
+rm -fr cmvs
+rm -fr pba
+rm -fr SiftGPU

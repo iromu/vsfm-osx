@@ -12,6 +12,8 @@ Installation and Requirements <a id="install" />
 Clone this project and run ./scripts/all.
 You need, of course, an OS X machine and Xcode with Command Line Tools. Tested with Lion 10.7.4, Xcode 4.3.3 and XQuartz 2.7.2
 
+Download XQuartz from http://xquartz.macosforge.org
+
 Acknowledgements <a id="acknowledgements" />
 ----------------
 
