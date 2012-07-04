@@ -22,12 +22,12 @@ cd "$DIR/../.."
 APPDIR=`pwd`
 cd - > /dev/null
 
-LNDIR=/tmp/iromu/VisualSFM.app
+LNDIR=/private/tmp/iromu/VisualSFM.app
 
 if [ ! -e "$LNDIR/Contents/Resources/bin/VisualSFM" ]; then
 	rm -f "$LNDIR"
-	mkdir -p /tmp/iromu
-	chmod a+w /tmp/iromu
+	mkdir -p /private/tmp/iromu
+	chmod a+w /private/tmp/iromu
 	ln -s "$APPDIR" "$LNDIR"
 fi
 
