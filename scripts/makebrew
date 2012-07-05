@@ -25,12 +25,12 @@ if [ ! -e "${ROOT}" ]; then
 	$(mkdir -p ${ROOT})
 fi
 
-if [ -e "$ATTIC" ]; then 
-	echo "Restoring $ATTIC to $APP_ROOT"
-	mv "$ATTIC" "$APP_ROOT" 
-else
+#if [ -e "$ATTIC" ]; then 
+#	echo "Restoring $ATTIC to $APP_ROOT"
+#	mv "$ATTIC/VisualSFM.app" "$APP_ROOT" 
+#else
 	mkdir -p "$APP_ROOT"
-fi
+#fi
 
 
 function rollback() {
@@ -38,8 +38,8 @@ function rollback() {
 	macports_activate
 	if [ -e "$APP_ROOT" ]; then 
 		echo "Moving $APP_ROOT to $ATTIC"
-		#mkdir -p "$ATTIC"
-		#mv "${APP_ROOT}" "${ATTIC}"
+		mkdir -p "$ATTIC"
+		mv "${APP_ROOT}" "${ATTIC}"
 	fi
 	exit
 }
@@ -56,7 +56,7 @@ function install_brew () {
 function install_brew_libs () {
 	if [ ! -h "$APP_RES/bin/pkg-config" ]; then
 		echo "Installing Homebrew dependencies into $APP_RES"
-		#$APP_RES/bin/brew install pkg-config
+		$APP_RES/bin/brew install pkg-config
 		$APP_RES/bin/brew install gdk-pixbuf --use-llvm
 		$APP_RES/bin/brew install cairo
 		$APP_RES/bin/brew link cairo
@@ -71,6 +71,7 @@ function install_brew_libs () {
 		$APP_RES/bin/brew link pixman
 		$APP_RES/bin/brew link fontconfig
 	    $APP_RES/bin/brew install gtk+
+	    $APP_RES/bin/brew install freetype2
 	else
 		echo "Updating Homebrew dependencies into $APP_RES"
 		$APP_RES/bin/brew update pkg-config
@@ -80,21 +81,18 @@ function install_brew_libs () {
 		$APP_RES/bin/brew update devil
 		$APP_RES/bin/brew update gsl
 		$APP_RES/bin/brew update boost
+		$APP_RES/bin/brew update freetype2
 	fi
 }
 
 trap rollback INT TERM EXIT
 
-#macports_deactivate
-
 install_brew
 
-#install_brew_libs
-#$APP_RES/bin/brew doctor > brew-doctor.log
+cd "$scriptPath/../"
+cp Formula/*.rb "$APP_RES/Library/Formula"
+cd - >/dev/null
 
-# macports_activate
-
-echo $PATH
-echo $LDFLAGS
+install_brew_libs
 
 trap - INT TERM EXIT
