@@ -22,10 +22,11 @@ scriptPath=${0%/*}
 source $scriptPath/common
 
 restore
+macports_deactivate
 
 function rollback() {
 	echo "Rollback"
-	#macports_activate
+	macports_activate
 	backup
 	exit
 }
@@ -42,18 +43,31 @@ function install_brew () {
 function install_brew_libs () {
 	if [ ! -h "$APP_RES/bin/pkg-config" ]; then
 		echo "Installing Homebrew dependencies into $APP_RES"
+		$APP_RES/bin/brew install gettext
+		$APP_RES/bin/brew link gettext
 		$APP_RES/bin/brew install pkg-config
+		
+		$APP_RES/bin/brew install libffi
+		$APP_RES/bin/brew link libffi
+		
 		$APP_RES/bin/brew install glib
 		$APP_RES/bin/brew link -f glib
 		$APP_RES/bin/brew install fontconfig
+		$APP_RES/bin/brew link fontconfig
+		
+		$APP_RES/bin/brew install pixman
+		$APP_RES/bin/brew link pixman
+		$APP_RES/bin/brew install cairo
+		$APP_RES/bin/brew link cairo
+		$APP_RES/bin/brew install pango
+		
 	    $APP_RES/bin/brew install gtk+
 	    $APP_RES/bin/brew install freetype2
-		$APP_RES/bin/brew link cairo gettext fontconfig
-		$APP_RES/bin/brew link pixman
-		$APP_RES/bin/brew install glew
-		$APP_RES/bin/brew install devil
-		$APP_RES/bin/brew install gsl
-		$APP_RES/bin/brew install boost
+
+		#$APP_RES/bin/brew install glew
+		#$APP_RES/bin/brew install devil
+		#$APP_RES/bin/brew install gsl
+		#$APP_RES/bin/brew install boost
 	fi
 }
 
@@ -62,7 +76,7 @@ trap rollback INT TERM EXIT
 install_brew
 
 cd "$scriptPath/../"
-cp Formula/freetype2.rb "$APP_RES/Library/Formula"
+cp Formula/*.rb "$APP_RES/Library/Formula"
 cd - >/dev/null
 
 install_brew_libs

@@ -47,21 +47,21 @@ cp "vsfm/bin/VisualSFM" "$FINAL_APP_RES/bin/"
 
 
 echo "Copying SiftGPU library..."
-cp "SiftGPU/bin/libsiftgpu.so" "$FINAL_APP_RES/bin/"
+#cp "SiftGPU/bin/libsiftgpu.so" "$FINAL_APP_RES/bin/"
 
 echo "Copying PBA library..."
-cp "pba/bin/libpba_no_gpu.so" "$FINAL_APP_RES/bin/libpba.so"
+#cp "pba/bin/libpba_no_gpu.so" "$FINAL_APP_RES/bin/libpba.so"
 
 echo "Copying CMVS/PMVS2/genOption binaries..."
-cp "cmvs/program/main/cmvs" "$FINAL_APP_RES/bin/"
-cp "cmvs/program/main/pmvs2" "$FINAL_APP_RES/bin/"
-cp "cmvs/program/main/genOption" "$FINAL_APP_RES/bin/"
+#cp "cmvs/program/main/cmvs" "$FINAL_APP_RES/bin/"
+#cp "cmvs/program/main/pmvs2" "$FINAL_APP_RES/bin/"
+#cp "cmvs/program/main/genOption" "$FINAL_APP_RES/bin/"
 
 echo "Cleaning unused files"
-rm -fr "$FINAL_APP_RES/Cellar/boost"
-rm -fr "$FINAL_APP_RES/lib/libboost*"
-rm -fr "$FINAL_APP_RES/Cellar/pkg-config"
-rm -fr "$FINAL_APP_RES/lib/pkgconfig"
+#rm -fr "$FINAL_APP_RES/Cellar/boost"
+#rm -fr "$FINAL_APP_RES/lib/libboost*"
+#rm -fr "$FINAL_APP_RES/Cellar/pkg-config"
+#rm -fr "$FINAL_APP_RES/lib/pkgconfig"
 
 echo "Disconnecting BUILDDIR"
 if [ -e "$APP_ROOT" ]; then 

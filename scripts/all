@@ -24,8 +24,8 @@ source $scriptPath/common
 source $scriptPath/makebrew
 
 source $scriptPath/makevsfm
-source $scriptPath/makesiftgpu
-source $scriptPath/makepba
-source $scriptPath/makecmvs
+#source $scriptPath/makesiftgpu
+#source $scriptPath/makepba
+#source $scriptPath/makecmvs
 
 source $scriptPath/makeapp
