@@ -44,7 +44,7 @@ function restore() {
 	if [ -e "$ATTIC" ]; then 
 		echo "Restoring $ATTIC to $ROOT"
 		mv "$ATTIC/VisualSFM.app" "$ROOT" 
-		rm "$ATTIC"
+		rm -fr "$ATTIC"
 	else
 		mkdir -p "$APP_ROOT"
 	fi

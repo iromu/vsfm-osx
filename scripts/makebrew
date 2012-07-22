@@ -45,21 +45,16 @@ function install_brew_libs () {
 		$APP_RES/bin/brew install pkg-config
 		$APP_RES/bin/brew install glib
 		$APP_RES/bin/brew link -f glib
-#		$APP_RES/bin/brew install gdk-pixbuf --use-llvm
-	#	$APP_RES/bin/brew install cairo
-	#	$APP_RES/bin/brew link cairo
-#		$APP_RES/bin/brew install pango
+
 		$APP_RES/bin/brew install fontconfig
-	#	$APP_RES/bin/brew link pixman
-	#	$APP_RES/bin/brew link fontconfig
 	    $APP_RES/bin/brew install gtk+
 	    $APP_RES/bin/brew install freetype2
 		$APP_RES/bin/brew link cairo gettext fontconfig
-	
-	#	$APP_RES/bin/brew install glew
-	#	$APP_RES/bin/brew install devil
-	#	$APP_RES/bin/brew install gsl
-	#	$APP_RES/bin/brew install boost
+		$APP_RES/bin/brew link pixman
+		$APP_RES/bin/brew install glew
+		$APP_RES/bin/brew install devil
+		$APP_RES/bin/brew install gsl
+		$APP_RES/bin/brew install boost
 
 	fi
 }
