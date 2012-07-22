@@ -21,26 +21,12 @@ scriptPath=${0%/*}
 
 source $scriptPath/common
 
-if [ ! -e "${ROOT}" ]; then
-	$(mkdir -p ${ROOT})
-fi
-
-#if [ -e "$ATTIC" ]; then 
-#	echo "Restoring $ATTIC to $APP_ROOT"
-#	mv "$ATTIC/VisualSFM.app" "$APP_ROOT" 
-#else
-	mkdir -p "$APP_ROOT"
-#fi
-
+restore
 
 function rollback() {
 	echo "Rollback"
 	#macports_activate
-	#if [ -e "$APP_ROOT" ]; then 
-	#	echo "Moving $APP_ROOT to $ATTIC"
-	#	mkdir -p "$ATTIC"
-	#	mv "${APP_ROOT}" "${ATTIC}"
-	#fi
+	backup
 	exit
 }
 
@@ -50,37 +36,31 @@ function install_brew () {
 		mkdir -p ${APP_RES} && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C ${APP_RES}
 	fi
 	echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
-	$APP_RES/bin/brew update
+	
 }
 
 function install_brew_libs () {
 	if [ ! -h "$APP_RES/bin/pkg-config" ]; then
 		echo "Installing Homebrew dependencies into $APP_RES"
 		$APP_RES/bin/brew install pkg-config
-		$APP_RES/bin/brew install gdk-pixbuf --use-llvm
-		$APP_RES/bin/brew install cairo
-		$APP_RES/bin/brew link cairo
-		$APP_RES/bin/brew install pango
+		$APP_RES/bin/brew install glib
+		$APP_RES/bin/brew link -f glib
+#		$APP_RES/bin/brew install gdk-pixbuf --use-llvm
+	#	$APP_RES/bin/brew install cairo
+	#	$APP_RES/bin/brew link cairo
+#		$APP_RES/bin/brew install pango
 		$APP_RES/bin/brew install fontconfig
-		$APP_RES/bin/brew link pixman
-		$APP_RES/bin/brew link fontconfig
+	#	$APP_RES/bin/brew link pixman
+	#	$APP_RES/bin/brew link fontconfig
 	    $APP_RES/bin/brew install gtk+
 	    $APP_RES/bin/brew install freetype2
+		$APP_RES/bin/brew link cairo gettext fontconfig
 	
-		$APP_RES/bin/brew install glew
-		$APP_RES/bin/brew install devil
-		$APP_RES/bin/brew install gsl
-		$APP_RES/bin/brew install boost
-	else
-		echo "Updating Homebrew dependencies into $APP_RES"
-		$APP_RES/bin/brew update pkg-config
-		$APP_RES/bin/brew update gdk-pixbuf --use-llvm
-		$APP_RES/bin/brew update cairo pango gtk+
-		$APP_RES/bin/brew update glew
-		$APP_RES/bin/brew update devil
-		$APP_RES/bin/brew update gsl
-		$APP_RES/bin/brew update boost
-		$APP_RES/bin/brew update freetype2
+	#	$APP_RES/bin/brew install glew
+	#	$APP_RES/bin/brew install devil
+	#	$APP_RES/bin/brew install gsl
+	#	$APP_RES/bin/brew install boost
+
 	fi
 }
 
@@ -89,7 +69,7 @@ trap rollback INT TERM EXIT
 install_brew
 
 cd "$scriptPath/../"
-cp Formula/*.rb "$APP_RES/Library/Formula"
+cp Formula/freetype2.rb "$APP_RES/Library/Formula"
 cd - >/dev/null
 
 install_brew_libs

@@ -36,5 +36,27 @@ function macports_activate() {
 	fi
 }
 
+function restore() {
+	if [ ! -e "${ROOT}" ]; then
+		$(mkdir -p ${ROOT})
+	fi
+
+	if [ -e "$ATTIC" ]; then 
+		echo "Restoring $ATTIC to $ROOT"
+		mv "$ATTIC/VisualSFM.app" "$ROOT" 
+		rm "$ATTIC"
+	else
+		mkdir -p "$APP_ROOT"
+	fi
+}
+
+function backup() {
+	if [ -e "$APP_ROOT" ]; then 
+		echo "Moving $APP_ROOT to $ATTIC"
+		mkdir -p "$ATTIC"
+		mv "${APP_ROOT}" "${ATTIC}"
+	fi
+}
+
 echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
 

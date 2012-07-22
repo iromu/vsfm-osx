@@ -21,10 +21,4 @@ scriptPath=${0%/*}
 
 source $scriptPath/common
 
-rm -fr $ROOT
-rm -fr $ATTIC
-rm -fr vsfm
-rm -fr cmvs
-rm -fr pba
-rm -fr SiftGPU
-rm -fr Graclus
+$APP_RES/bin/brew $1 $2 $3
