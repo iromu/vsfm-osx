@@ -88,10 +88,6 @@ trap rollback INT TERM EXIT
 
 install_brew
 
-cd "$scriptPath/../"
-cp Formula/*.rb "$APP_RES/Library/Formula"
-cd - >/dev/null
-
 install_brew_libs
 
 trap - INT TERM EXIT
