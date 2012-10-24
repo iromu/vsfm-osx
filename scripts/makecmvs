@@ -37,6 +37,13 @@ function make_cmvs () {
 		git clone git://github.com/iromu/Graclus.git
 	fi
 
+	# downloading additional lapack files
+	mkdir -p cmvs/include/clapack
+	cd cmvs/include/clapack
+	curl -L http://www.netlib.org/clapack/clapack.h > clapack.h
+	curl -L http://www.netlib.org/clapack/f2c.h > f2c.h
+	cd ../../../
+
 	echo $PATH | grep -q Contents/Resources/bin || export PATH="$APP_RES/bin:$APP_RES/sbin:$PATH"
 
 	echo "Patching CMVS makefile"
@@ -54,7 +61,7 @@ function make_cmvs () {
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	KEYWORD="YOUR_INCLUDE_PATH ="
-	REPLACE=$(echo "YOUR_INCLUDE_PATH=-I$APP_RES/include" | sed -e 's/\//\\\//g')
+	REPLACE=$(echo "YOUR_INCLUDE_PATH=-I$APP_RES/include -I../../include" | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	KEYWORD="YOUR_INCLUDE_METIS_PATH ="
