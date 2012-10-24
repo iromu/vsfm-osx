@@ -69,7 +69,7 @@ function make_cmvs () {
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	KEYWORD="YOUR_LDLIB_PATH ="
-	REPLACE=$(echo "YOUR_LDLIB_PATH=-L$APP_RES/lib -L/opt/X11/lib" | sed -e 's/\//\\\//g')
+	REPLACE=$(echo "YOUR_LDLIB_PATH=-L$APP_RES/lib -L/opt/X11/lib -L../../../Graclus" | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
 	cd cmvs/program/main
