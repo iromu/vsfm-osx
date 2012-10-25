@@ -35,11 +35,11 @@ function make_SiftGPU () {
 	unzip $SIFT_ZIP
 	
 	cd SiftGPU/src/SiftGPU/
-	if [ ! -e "$(basename $ProgramGLSL_PATCH)" ]; then
-		echo "Patching SiftGPU GLSL code"
-		curl -LO $ProgramGLSL_PATCH
-		patch < $(basename $ProgramGLSL_PATCH)
-	fi
+#	if [ ! -e "$(basename $ProgramGLSL_PATCH)" ]; then
+#		echo "Patching SiftGPU GLSL code"
+#		curl -LO $ProgramGLSL_PATCH
+#		patch < $(basename $ProgramGLSL_PATCH)
+#	fi
 	cd - > /dev/null
 	
 	echo "Patching SiftGPU makefile"
