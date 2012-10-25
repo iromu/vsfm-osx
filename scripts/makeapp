@@ -43,6 +43,7 @@ echo "Copying share dir..."
 cp -R "$BUILD_RES/share" "$FINAL_APP_RES/"
 
 echo "Copying main binary..."
+mkdir $FINAL_APP_RES/bin
 cp "vsfm/bin/VisualSFM" "$FINAL_APP_RES/bin/"
 
 

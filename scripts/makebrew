@@ -64,7 +64,7 @@ function install_brew_libs () {
 	    $APP_RES/bin/brew install freetype
 		$APP_RES/bin/brew link freetype
 		$APP_RES/bin/brew install pango
-		$APP_RES/bin/brew install fontconfig
+#		$APP_RES/bin/brew install fontconfig
 		$APP_RES/bin/brew link pixman
 		$APP_RES/bin/brew link fontconfig
 	    $APP_RES/bin/brew install gtk+
