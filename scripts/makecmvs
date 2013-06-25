@@ -22,7 +22,7 @@ scriptPath=${0%/*}
 source $scriptPath/common
 
 function make_cmvs () {
-	CMVS_SRC=http://grail.cs.washington.edu/software/cmvs/cmvs-fix2.tar.gz
+	CMVS_SRC=http://www.di.ens.fr/cmvs/cmvs-fix2.tar.gz
 	CMVS_GZIP=cmvs-fix2.tar.gz
 
 	if [ ! -e "${CMVS_GZIP}" ]; then
