@@ -25,9 +25,9 @@ if [ ! -e "${ROOT}" ]; then
 	$(mkdir -p ${ROOT})
 fi
 
-#if [ -e "$ATTIC" ]; then 
+#if [ -e "$ATTIC" ]; then
 #	echo "Restoring $ATTIC to $APP_ROOT"
-#	mv "$ATTIC/VisualSFM.app" "$APP_ROOT" 
+#	mv "$ATTIC/VisualSFM.app" "$APP_ROOT"
 #else
 	mkdir -p "$APP_ROOT"
 #fi
@@ -36,7 +36,7 @@ fi
 function rollback() {
 	echo "Rollback"
 	#macports_activate
-	#if [ -e "$APP_ROOT" ]; then 
+	#if [ -e "$APP_ROOT" ]; then
 	#	echo "Moving $APP_ROOT to $ATTIC"
 	#	mkdir -p "$ATTIC"
 	#	mv "${APP_ROOT}" "${ATTIC}"
@@ -55,12 +55,12 @@ function install_brew () {
 
 function install_brew_libs () {
 	echo "Installing Homebrew dependencies into $APP_RES"
-	if [ ! -h "$APP_RES/bin/pkg-config" ]; then	
-		$APP_RES/bin/brew install pkg-config	
+	if [ ! -h "$APP_RES/bin/pkg-config" ]; then
+		$APP_RES/bin/brew install pkg-config
 		$APP_RES/bin/brew install jpeg
 		$APP_RES/bin/brew install gdk-pixbuf --use-llvm
 		$APP_RES/bin/brew install cairo
-		$APP_RES/bin/brew link cairo		
+		$APP_RES/bin/brew link cairo
 	    $APP_RES/bin/brew install freetype
 		$APP_RES/bin/brew link freetype
 		$APP_RES/bin/brew install pango
@@ -72,6 +72,7 @@ function install_brew_libs () {
 		$APP_RES/bin/brew install devil
 		$APP_RES/bin/brew install gsl
 		$APP_RES/bin/brew install boost
+		$APP_RES/bin/brew install intltool
 	fi
 
 }
