@@ -72,6 +72,24 @@ function make_cmvs () {
 	REPLACE=$(echo "YOUR_LDLIB_PATH=-L$APP_RES/lib -L/opt/X11/lib -L../../../Graclus" | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
 	
+	KEYWORD="CXX = g++"
+	REPLACE="CXX = g++-4.9"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+	
+	KEYWORD="-llapack"
+	REPLACE="-llapack -lstdc++"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+
+	KEYWORD="-fopenmp -DNUMBITS=64"
+	REPLACE="-fopenmp -DNUMBITS=64 -lstdc++"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" cmvs/program/main/Makefile  > output.file;mv output.file cmvs/program/main/Makefile
+
+	echo "Patching bundle.cc"
+	echo "#include <numeric>" | cat - cmvs/program/base/cmvs/bundle.cc > /tmp/out && mv /tmp/out cmvs/program/base/cmvs/bundle.cc
+	
+	echo "Patching genOption.cc"
+	echo "#include <stdlib.h>" | cat - cmvs/program/main/genOption.cc > /tmp/out && mv /tmp/out cmvs/program/main/genOption.cc
+	
 	cd cmvs/program/main
 	make clean && make 
 	cd - > /dev/null
