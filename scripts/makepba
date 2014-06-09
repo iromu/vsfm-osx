@@ -40,11 +40,19 @@ function make_pba () {
 	KEYWORD="-march=native"
 	REPLACE="-march=core2"
 	sed -e "s/${KEYWORD}/${REPLACE}/g" pba/makefile_no_gpu  > output.file;mv output.file pba/makefile_no_gpu
-	
+
+	KEYWORD="CC = g++"
+	REPLACE="CC = g++-4.9"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" pba/makefile_no_gpu  > output.file;mv output.file pba/makefile_no_gpu
+
 	KEYWORD=$(echo -L/usr/lib64 | sed -e 's/\//\\\//g')
 	REPLACE=""
 	sed -e "s/${KEYWORD}/${REPLACE}/g" pba/makefile_no_gpu  > output.file;mv output.file pba/makefile_no_gpu
 
+	KEYWORD="-lpba_no_gpu"
+	REPLACE="-lpba_no_gpu -lstdc++ -fno-inline"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" pba/makefile_no_gpu  > output.file;mv output.file pba/makefile_no_gpu
+	
 	echo "Patching SparseBundleCPU.h file"
 	cp SparseBundleCPU.patch pba/src/pba
 	cd pba/src/pba
