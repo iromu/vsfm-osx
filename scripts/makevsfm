@@ -42,6 +42,14 @@ function make_sfm () {
 	REPLACE=$(echo -L/opt/X11/lib | sed -e 's/\//\\\//g')
 	sed -e "s/${KEYWORD}/${REPLACE}/g" vsfm/makefile  > output.file;mv output.file vsfm/makefile
 	
+	KEYWORD="CC = g++ -w"
+	REPLACE="CC = g++-4.9 -w"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" vsfm/makefile  > output.file;mv output.file vsfm/makefile
+
+	KEYWORD="-ldl \$(GTK_LIBS)"
+	REPLACE="-ldl -lstdc++ \$(GTK_LIBS)"
+	sed -e "s/${KEYWORD}/${REPLACE}/g" vsfm/makefile  > output.file;mv output.file vsfm/makefile
+
 	echo $PATH | grep -q Contents/Resources/bin || export PATH="$HOMEBREW/bin:$HOMEBREW/sbin:$PATH"
 	
 	cd vsfm
